@@ -1,38 +1,59 @@
 import './globals.css';
 import SiteShell from '../components/SiteShell';
+import ChatBot from '../components/ChatBot';
+import JsonLd from '../components/JsonLd';
+import {
+  SITE,
+  organizationSchema,
+  softwareApplicationSchema,
+} from '../lib/seo';
 
 export const metadata = {
-  metadataBase: new URL('https://site.hisabdo.app'),
-  verification: {
-    google: 'cRwOB42ERAVp7tkYLPEa23vv9BZd7jTFyMi89e9DpGc',
-  },
+  metadataBase: new URL(SITE.url),
   title: {
-    default: 'HisabDo | Smart Khata & Ledger App',
-    template: '%s | HisabDo by XICTEK Systems',
+    default: 'HisabDo | Khata Book, Expense Tracker & Customer Ledger App',
+    template: '%s | HisabDo',
   },
-  description: 'HisabDo is a flagship product of XICTEK Systems, built for offline-first khata, ledger, and business finance management.',
-  keywords: ['HisabDo', 'XICTEK Systems', 'Khata app', 'ledger app', 'offline finance app', 'small business accounting'],
-  applicationName: 'HisabDo',
-  authors: [{ name: 'Mian Usman Khalid' }, { name: 'XICTEK Systems' }],
-  publisher: 'XICTEK Systems',
-  icons: {
-    icon: '/assets/images/app-logo.webp',
-    shortcut: '/assets/images/app-logo.webp',
-    apple: '/assets/images/app-logo.webp',
+  description: SITE.description,
+  keywords: SITE.keywords,
+  authors: [{ name: 'Mian Usman Khalid', url: `${SITE.url}/authors/mian-usman-khalid` }],
+  creator: 'Mian Usman Khalid',
+  publisher: 'HisabDo',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
+  },
+  alternates: {
+    canonical: SITE.url,
+    languages: { 'en-US': SITE.url, 'ur-PK': SITE.url },
   },
   openGraph: {
-    title: 'HisabDo by XICTEK Systems',
-    description: 'Offline-first khata, ledger, and finance management for small businesses.',
-    siteName: 'HisabDo',
     type: 'website',
-    url: 'https://hisabdo.app',
-    images: [{ url: '/assets/images/app-logo.webp', width: 768, height: 768, alt: 'HisabDo by XICTEK Systems' }],
+    url: SITE.url,
+    siteName: SITE.name,
+    title: 'HisabDo | Khata Book, Expense Tracker & Customer Ledger App',
+    description: SITE.description,
+    images: [{ url: SITE.ogImage, width: 1200, height: 630, alt: 'HisabDo App' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'HisabDo by XICTEK Systems',
-    description: 'Offline-first khata, ledger, and finance management for small businesses.',
-    images: ['/assets/images/app-logo.webp'],
+    site: SITE.twitter,
+    creator: SITE.twitter,
+    title: 'HisabDo | Khata Book, Expense Tracker & Customer Ledger App',
+    description: SITE.description,
+    images: [SITE.ogImage],
+  },
+  icons: {
+    icon: [
+      { url: '/assets/images/app-logo.png', type: 'image/png' },
+      { url: '/assets/images/app-logo.webp', type: 'image/webp' },
+    ],
+    shortcut: '/assets/images/app-logo.png',
+    apple: '/assets/images/app-logo.png',
+  },
+  verification: {
+    google: 'google37defe6419d8ecc5',
   },
 };
 
@@ -40,10 +61,22 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <head>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
+        />
+        <JsonLd
+          data={[
+            organizationSchema(),
+            softwareApplicationSchema(),
+          ]}
+        />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <SiteShell>{children}</SiteShell>
+        <ChatBot />
       </body>
     </html>
   );

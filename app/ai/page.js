@@ -195,6 +195,7 @@ export default function AIPage() {
     customerLoading;
 
   if (isInitialLoading) {
+  if (loading) {
     return (
       <main className={styles.page}>
         <div
@@ -225,6 +226,7 @@ export default function AIPage() {
   // ERROR STATE
   // =========================================================
   if (error && !healthData && !insightsData) {
+  if (error) {
     return (
       <main className={styles.page}>
         <div
@@ -293,6 +295,7 @@ export default function AIPage() {
             className={styles.refreshButton}
             onClick={fetchAllAI}
           >
+          <button className={styles.refreshButton} onClick={fetchAllData}>
             ↻ Refresh insights
           </button>
         </header>
@@ -305,7 +308,6 @@ export default function AIPage() {
             ["overview", "Overview"],
             ["insights", "Insights"],
             ["customers", "Customers"],
-            ["chat", "AI Assistant"],
           ].map(([key, label]) => (
             <button
               key={key}
@@ -603,6 +605,136 @@ export default function AIPage() {
                             {alert.text ||
                               "Review this alert for more information."}
                           </p>
+        {/* OVERVIEW / INSIGHTS TABS */}
+        {(activeTab === "overview" || activeTab === "insights") && (
+          <>
+            {summary && (
+              <section className={styles.summaryCard}>
+                <div className={styles.summaryIcon}>✦</div>
+                <div className={styles.summaryContent}>
+                  <span className={styles.eyebrow}>
+                    {summary.eyebrow || "AI BUSINESS SUMMARY"}
+                  </span>
+                  <h2>{summary.headline || "Your business overview"}</h2>
+                  <p>{summary.text || ""}</p>
+                  <div className={styles.summaryActions}>
+                    <button className={styles.primaryButton}>View recommendations</button>
+                    <button className={styles.secondaryButton}>See monthly insights</button>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {stats && (
+              <section className={styles.statsGrid}>
+                <article className={styles.statCard}>
+                  <div className={styles.statTop}>
+                    <span>Business Health</span>
+                    <span className={styles.greenIcon}>♥</span>
+                  </div>
+                  <strong>
+                    {stats.businessHealth?.score ?? "--"}
+                    <span>/100</span>
+                  </strong>
+                  <div className={styles.progress}>
+                    <div style={{ width: `${stats.businessHealth?.score || 0}%` }} />
+                  </div>
+                  <small>{stats.businessHealth?.statusText || "—"}</small>
+                </article>
+
+                <article className={styles.statCard}>
+                  <div className={styles.statTop}>
+                    <span>Monthly Profit</span>
+                    <span className={styles.greenIcon}>↗</span>
+                  </div>
+                  <strong>
+                    Rs. {(stats.monthlyProfit?.amount || 0).toLocaleString()}
+                  </strong>
+                  <div className={styles.changePositive}>
+                    {stats.monthlyProfit?.trend === "positive" ? "↑ Positive trend" : "→ Stable"}
+                  </div>
+                  <small>Based on your latest records</small>
+                </article>
+
+                <article className={styles.statCard}>
+                  <div className={styles.statTop}>
+                    <span>Customer Activity</span>
+                    <span className={styles.blueIcon}>●</span>
+                  </div>
+                  <strong>
+                    {stats.customerActivity?.displayValue ||
+                      `${stats.customerActivity?.score || 0}%`}
+                  </strong>
+                  <div className={styles.progress}>
+                    <div style={{ width: `${stats.customerActivity?.score || 0}%` }} />
+                  </div>
+                  <small>Healthy customer activity</small>
+                </article>
+
+                <article className={styles.statCard}>
+                  <div className={styles.statTop}>
+                    <span>Pending Payments</span>
+                    <span className={styles.orangeIcon}>!</span>
+                  </div>
+                  <strong>
+                    Rs. {(stats.pendingPayments?.amount || 0).toLocaleString()}
+                  </strong>
+                  <div className={styles.changeWarning}>
+                    {stats.pendingPayments?.count || 0} payments need attention
+                  </div>
+                  <small>Review outstanding balances</small>
+                </article>
+              </section>
+            )}
+
+            <section className={styles.mainGrid}>
+              {/* Recommendations */}
+              <article className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <div>
+                    <span className={styles.eyebrow}>PERSONALIZED</span>
+                    <h3>AI Recommendations</h3>
+                  </div>
+                  <span className={styles.sparkle}>✦</span>
+                </div>
+                <div className={styles.recommendationList}>
+                  {recommendations.length > 0 ? (
+                    recommendations.map((item, index) => (
+                      <div className={styles.recommendation} key={index}>
+                        <div className={styles.itemIcon}>{item.icon || "💡"}</div>
+                        <div className={styles.itemContent}>
+                          <h4>{item.title}</h4>
+                          <p>{item.text}</p>
+                          <button>{item.action || "View insight"} →</button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p style={{ color: "#94a3b8" }}>No recommendations available.</p>
+                  )}
+                </div>
+              </article>
+
+              {/* Alerts */}
+              <article className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <div>
+                    <span className={styles.eyebrow}>ATTENTION</span>
+                    <h3>Smart Alerts</h3>
+                  </div>
+                  <span className={styles.alertCount}>{alerts.length}</span>
+                </div>
+                <div className={styles.alertList}>
+                  {alerts.length > 0 ? (
+                    alerts.map((alert, index) => (
+                      <div
+                        className={`${styles.alert} ${styles[alert.type] || styles.medium}`}
+                        key={index}
+                      >
+                        <div className={styles.alertIcon}>{alert.icon || "⚠️"}</div>
+                        <div>
+                          <h4>{alert.title}</h4>
+                          <p>{alert.text}</p>
                         </div>
                       </div>
                     ))
@@ -638,6 +770,24 @@ export default function AIPage() {
                     </span>
 
                     <h3>Your Financial Goal</h3>
+                    <p style={{ color: "#94a3b8" }}>No alerts at the moment.</p>
+                  )}
+                </div>
+                <button className={styles.fullButton}>View all alerts →</button>
+              </article>
+            </section>
+
+            {/* Monthly Insights */}
+            {monthly && (
+              <section className={styles.mainGrid}>
+                <article className={styles.card}>
+                  <div className={styles.cardHeader}>
+                    <div>
+                      <span className={styles.eyebrow}>
+                        {monthly.eyebrow || "MONTHLY INSIGHTS"}
+                      </span>
+                      <h3>{monthly.title || "Business Overview"}</h3>
+                    </div>
                   </div>
 
                   <span className={styles.goalIcon}>
@@ -915,14 +1065,36 @@ export default function AIPage() {
                       {customerData?.followUpCount ?? 0}
                     </strong>
 
+                </article>
+              </section>
+            )}
+          </>
+        )}
+
+        {/* CUSTOMERS TAB */}
+        {activeTab === "customers" && (
+          <section className={styles.mainGrid}>
+            <article className={styles.card}>
+              <div className={styles.cardHeader}>
+                <div>
+                  <span className={styles.eyebrow}>CUSTOMER INTELLIGENCE</span>
+                  <h3>Customer Insights</h3>
+                </div>
+                <span className={styles.customerIcon}>👥</span>
+              </div>
+
+              {customerSummary && (
+                <div className={styles.customerSummary}>
+                  <div>
+                    <strong>{customerSummary.needFollowUp ?? 0}</strong>
                     <span>Need follow-up</span>
                   </div>
 
-                  <div>
-                    <strong>
+                  <div>                    <strong>
                       {customerData?.activeCount ?? 0}
                     </strong>
 
+                    <strong>{customerSummary.activeCustomers ?? 0}</strong>
                     <span>Active customers</span>
                   </div>
 
@@ -1164,6 +1336,38 @@ export default function AIPage() {
         {/* =====================================================
             FOOTER NOTE
         ====================================================== */}
+                    <strong>{customerSummary.activityScore ?? 0}%</strong>
+                    <span>Activity score</span>
+                  </div>
+                </div>
+              )}
+
+              {customers.slice(0, 3).map((cust) => (
+                <div className={styles.customerRow} key={cust.id || cust.name}>
+                  <div className={styles.avatar}>{cust.initials || "CU"}</div>
+                  <div>
+                    <h4>{cust.name}</h4>
+                    <p>
+                      {cust.followUpRequired
+                        ? "Follow-up recommended"
+                        : `Last purchase ${cust.lastPurchaseDaysAgo || "—"} days ago`}
+                    </p>
+                  </div>
+                  <span
+                    className={
+                      cust.riskBadge === "High" ? styles.highBadge : styles.mediumBadge
+                    }
+                  >
+                    {cust.riskBadge || "Low"}
+                  </span>
+                </div>
+              ))}
+
+              <button className={styles.fullButton}>View customer insights →</button>
+            </article>
+          </section>
+        )}
+
         <div className={styles.disclaimer}>
           <span>✦</span>
 
